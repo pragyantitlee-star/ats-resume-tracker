@@ -1,8 +1,0 @@
-{
-  "name": "ats-resume-tracker",
-  "version": "1.0.0",
-  "description": "Track ATS compatibility of your resume across versions",
-  "scripts": {
-    "dev": "python3 -m http.server 3000"
-  }
-}
