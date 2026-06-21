@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-color: #fff;
+            color: #333;
+        }
+        
+        /* Header */
+        .header {
+            background-color: #1a1a2e;
+            color: #fff;
+            padding: 24px;
+            text-align: left;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Job Description Section */
+        .job-section {
+            margin-bottom: 24px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f9f9f9;
+        }
+        
+        .job-section h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+        
+        .job-section p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .job-section textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .upload-box {
+            flex: 1;
+            min-width: 250px;
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f0f7ff;
+            transition: all 0.3s;
+        }
+        
+        .upload-box:hover {
+            background-color: #e0f0ff;
+        }
+        
+        .upload-box input {
+            display: none;
+        }
+        
+        .upload-box p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .upload-box small {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .paste-button {
+            padding: 16px 24px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .paste-button:hover {
+            background-color: #218838;
+        }
+        
+        /* Resume List */
+        .resumes-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .resumes-title h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .download-button {
+            padding: 8px 12px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .download-button:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Resume Card */
+        .resume-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .resume-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: none;
+        }
+        
+        .resume-header:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .resume-name {
+            flex: 1;
+        }
+        
+        .resume-name h3 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+        }
+        
+        .resume-name p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .resume-score-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .score-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .score-80 {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .score-60 {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .score-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .delete-button {
+            padding: 8px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        
+        .resume-details {
+            padding: 16px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        
+        .resume-details.expanded {
+            display: block;
+            border-top: 1px solid #ddd;
+        }
+        
+        .issue {
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+        }
+        
+        .issue-critical {
+            background-color: #fee;
+            border-left-color: #dc3545;
+        }
+        
+        .issue-warning {
+            background-color: #ffeaa7;
+            border-left-color: #ffc107;
+        }
+        
+        .issue-success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .issue-info {
+            background-color: #e7f3ff;
+            border-left-color: #007bff;
+        }
+        
+        .resume-stats {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #999;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px dashed #ddd;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .empty-state small {
+            display: block;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #999;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #f0f0f0;
+            padding: 24px;
+            margin-top: 40px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+        
+        .footer p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .footer a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>ATS Resume Tracker</h1>
+        <p>Check your resume for ATS compatibility • Track versions • Match job descriptions</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Job Description Input -->
+        <div class="job-section">
+            <h3>Optional: Paste Job Description</h3>
+            <p>Helps identify keyword gaps in your resume</p>
+            <textarea id="jobDescription" placeholder="Paste job description to match keywords..."></textarea>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <label class="upload-box">
+                <input type="file" id="fileInput" accept=".txt,.pdf">
+                <p>📁 Upload .txt or .pdf</p>
+                <small>Paste plain text from your resume</small>
+            </label>
+            <button class="paste-button" onclick="handlePaste()">Or Paste Text</button>
+        </div>
+
+        <!-- Resume List -->
+        <div id="resumesContainer"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>Pragyan Pranati Pujhari</strong><br>pragyantitlee@gmail.com</p>
+        <a href="https://digitalheroesco.com">Built for Digital Heroes</a>
+    </div>
+
+    <script>
+        let resumes = [];
+
+        function analyzeResume(text) {
+            const issues = [];
+            let score = 100;
+
+            // Check for tables
+            if (/<table|<tr|<td/i.test(text)) {
+                issues.push({ type: 'critical', msg: 'Contains HTML tables — ATS cannot parse these' });
+                score -= 15;
+            }
+
+            // Check for special characters
+            const badChars = text.match(/[●▪▸◆★♦]/g);
+            if (badChars) {
+                issues.push({ type: 'critical', msg: `Bullet points use special symbols (${badChars[0]}) — use - or * instead` });
+                score -= 10;
+            }
+
+            // Check for images
+            if (/\[image\]|\[logo\]|\[photo\]|<img|<svg/i.test(text)) {
+                issues.push({ type: 'critical', msg: 'Contains images/graphics — ATS skips these entirely' });
+                score -= 10;
+            }
+
+            // Check for columns
+            if (/column|col-|grid-template|flex.*row/i.test(text)) {
+                issues.push({ type: 'warning', msg: 'May use multi-column layout — ATS reads left-to-right only' });
+                score -= 8;
+            }
+
+            // Check text length
+            if (text.length < 100) {
+                issues.push({ type: 'warning', msg: 'Text is too short — may be PDF-only (paste plain text instead)' });
+                score -= 5;
+            }
+
+            // Check for email
+            const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text);
+            if (!hasEmail) {
+                issues.push({ type: 'warning', msg: 'No email address found — add yours at the top' });
+                score -= 5;
+            }
+
+            // Check for standard sections
+            const sections = ['experience', 'education', 'skills', 'projects'];
+            const foundSections = sections.filter(s => new RegExp(s, 'i').test(text)).length;
+            if (foundSections < 3) {
+                issues.push({ type: 'warning', msg: `Only ${foundSections}/4 standard sections found — add Experience, Education, Skills, Projects` });
+                score -= 8;
+            }
+
+            // Check bullet points
+            const bulletCount = (text.match(/^[\s]*[-*•]/gm) || []).length;
+            if (bulletCount === 0 && text.length > 500) {
+                issues.push({ type: 'info', msg: 'No bullet points detected — consider adding them for readability' });
+            }
+
+            // Job description matching
+            const jobDesc = document.getElementById('jobDescription').value;
+            if (jobDesc.length > 20) {
+                const jobKeywords = jobDesc.toLowerCase().match(/\b[a-z]+\b/g).filter(w => w.length > 3);
+                const resumeText = text.toLowerCase();
+                const matched = jobKeywords.filter(k => resumeText.includes(k)).length;
+                const matchRate = (matched / jobKeywords.length) * 100;
+                if (matchRate < 40) {
+                    issues.push({ type: 'warning', msg: `Low job match (${matchRate.toFixed(0)}%) — your resume lacks keywords from the job description` });
+                    score -= Math.min(15, 15 - (matchRate / 100) * 15);
+                }
+            }
+
+            // Positive checks
+            if (foundSections >= 3) {
+                issues.push({ type: 'success', msg: 'Clear section headers found ✓' });
+            }
+            if (hasEmail) {
+                issues.push({ type: 'success', msg: 'Contact email included ✓' });
+            }
+            if (bulletCount > 5) {
+                issues.push({ type: 'success', msg: 'Good use of bullet points ✓' });
+            }
+
+            const sortOrder = { critical: 0, warning: 1, info: 2, success: 3 };
+            issues.sort((a, b) => sortOrder[a.type] - sortOrder[b.type]);
+
+            return {
+                score: Math.max(0, Math.min(100, score)),
+                issues
+            };
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const text = event.target.result;
+                const analysis = analyzeResume(text);
+                resumes.push({
+                    id: Date.now(),
+                    name: file.name.replace(/\.[^/.]+$/, ''),
+                    text: text,
+                    score: analysis.score,
+                    issues: analysis.issues,
+                    timestamp: new Date().toLocaleString()
+                });
+                render();
+            };
+            reader.readAsText(file);
+        }
+
+        function handlePaste() {
+            const text = prompt('Paste your resume text here:');
+            if (!text) return;
+
+            const analysis = analyzeResume(text);
+            const name = prompt('Name this version (e.g., "v1-final")', 'Resume v' + (resumes.length + 1)) || 'Resume v' + (resumes.length + 1);
+
+            resumes.push({
+                id: Date.now(),
+                name: name,
+                text: text,
+                score: analysis.score,
+                issues: analysis.issues,
+                timestamp: new Date().toLocaleString()
+            });
+            render();
+        }
+
+        function deleteResume(id) {
+            resumes = resumes.filter(r => r.id !== id);
+            render();
+        }
+
+        function toggleResume(id) {
+            const element = document.getElementById(`details-${id}`);
+            element.classList.toggle('expanded');
+        }
+
+        function downloadReport() {
+            const csv = [
+                ['Resume', 'ATS Score', 'Timestamp', 'Issues Count'],
+                ...resumes.map(r => [
+                    r.name,
+                    r.score,
+                    r.timestamp,
+                    r.issues.filter(i => i.type !== 'success').length
+                ])
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ats-tracker-report.csv';
+            a.click();
+        }
+
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-80';
+            if (score >= 60) return 'score-60';
+            return 'score-low';
+        }
+
+        function render() {
+            const container = document.getElementById('resumesContainer');
+
+            if (resumes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No resumes uploaded yet</p>
+                        <small>Upload or paste your resume above to get your ATS score</small>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = `
+                <div class="resumes-title">
+                    <h2>Your Resumes (${resumes.length})</h2>
+                    <button class="download-button" onclick="downloadReport()">📥 Download CSV</button>
+                </div>
+                ${resumes.map(resume => `
+                    <div class="resume-card">
+                        <div class="resume-header" onclick="toggleResume(${resume.id})">
+                            <div class="resume-name">
+                                <h3>${resume.name}</h3>
+                                <p>${resume.timestamp}</p>
+                            </div>
+                            <div class="resume-score-section">
+                                <div class="score-badge ${getScoreClass(resume.score)}">${resume.score}</div>
+                                <button class="delete-button" onclick="event.stopPropagation(); deleteResume(${resume.id})">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="resume-details" id="details-${resume.id}">
+                            <h4 style="margin: 0 0 12px 0; font-size: 14px;">Issues & Feedback:</h4>
+                            <div>
+                                ${resume.issues.map(issue => `
+                                    <div class="issue issue-${issue.type}">${issue.msg}</div>
+                                `).join('')}
+                            </div>
+                            <div class="resume-stats">
+                                <strong>${resume.text.length}</strong> characters • 
+                                <strong>${resume.text.split(/\s+/).length}</strong> words • 
+                                <strong>${(resume.text.match(/^[\s]*[-*•]/gm) || []).length}</strong> bullet points
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // File input listener
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
